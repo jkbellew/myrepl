@@ -1,5 +1,5 @@
 """My Personal REPL set up"""
-
+import code
 import sys
 import readline
 import atexit
@@ -14,7 +14,7 @@ history_file = Path.home() / ".pyhistory"
 sys.ps1 = "\033[32mpy> "
 sys.ps2 = "py| "
 
-initial_stmt: str = "[italic green]Welcome to the Python REPL[/italic green]"
+banner: str = "[italic green]Welcome to the Python REPL[/italic green]"
 
 pretty.install()
 traceback.install(show_locals=False)
@@ -23,8 +23,9 @@ class REPL:
     def __init__(self, file: Path=history_file, stmt: str=None):
         self.history_file = file
         self.statement = stmt
+        atexit.register(self.save_history)
 
-
+    @classmethod
     def save_history(self, file=history_file):
         if file:
             readline.write_history_file(file)
@@ -51,7 +52,7 @@ class REPL:
 
 
     def load_settings(self) -> None:
-        self.cls(initial_stmt)
+        self.cls(banner)
 
         if self.history_file.exists():
             readline.read_history_file(self.history_file)
@@ -61,4 +62,4 @@ class REPL:
             history_file.touch()
 
 
-    atexit.register(save_history)  # need atexit module
+     # need atexit module
