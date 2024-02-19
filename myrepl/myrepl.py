@@ -1,33 +1,39 @@
 """My Personal REPL set up"""
-import code
-import sys
 import readline
-import atexit
 
 from pathlib import Path
-from rich import pretty, traceback
 from rich import print as println
 from os import system
 
-history_file = Path.home() / ".pyhistory"
 
-sys.ps1 = "\033[32mpy> "
-sys.ps2 = "py| "
+def save_history(history_file):
+    readline.write_history_file(history_file)
 
-banner: str = "[italic green]Welcome to the Python REPL[/italic green]"
 
-pretty.install()
-traceback.install(show_locals=False)
+def cls(stmt: str=None) -> None:
+    system("cls")
+    if stmt is not None:
+        println(stmt)
 
-class REPL(code.InteractiveConsole):
-    def __init__(self, globals, *args, **kwargs):
-        code.InteractiveConsole.__init__(self, *args, **kwargs)
-        self.globals = globals
 
-    def run(self, code):
-        try:
-            exec(compile(code), self.globals, self.locals)
-        except SystemExit:
-            raise
-        except:
-            self.showtraceback()
+def clear() -> None:
+    system("cls")
+
+
+def run(pyfile: str | Path) -> None:
+    if type(pyfile) is str:
+        pyfile = Path(pyfile)
+
+    if pyfile.is_file():
+        exec(compile(pyfile.open().read(), "<string>","exec"))
+        println("\n[bold green]END OF PROGRAM.[/bold green]\n")
+    else:
+        println("\n[bold red]ERROR IN PROGRAM.[/bold red]\n")
+
+
+def load_settings(stmt, history_file: Path) -> None:
+    cls(stmt)
+    if history_file.exists():
+        readline.read_history_file(history_file)
+    else:
+        history_file.touch()
